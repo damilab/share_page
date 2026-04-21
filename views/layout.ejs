@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof pageTitle !== 'undefined' ? pageTitle + ' | ' : '' %>Lab Share</title>
+  <link rel="stylesheet" href="/css/output.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github.min.css">
+  <style>
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-thin { scrollbar-width: thin; scrollbar-color: #d1d5db transparent; }
+    .scrollbar-thin::-webkit-scrollbar { height: 4px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+    .prose pre { position: relative; }
+    .copy-btn { position: absolute; top: 0.5rem; right: 0.5rem; padding: 0.25rem 0.5rem; font-size: 0.75rem; background: rgba(255,255,255,0.9); border: 1px solid #d1d5db; border-radius: 0.25rem; cursor: pointer; opacity: 0; transition: opacity 0.2s; }
+    .prose pre:hover .copy-btn { opacity: 1; }
+    .copy-btn.copied { background: #10b981; color: #fff; border-color: #10b981; }
+    .file-tree ul { list-style: none; padding-left: 1.25rem; }
+    .file-tree > ul { padding-left: 0; }
+    .file-tree li { cursor: pointer; padding: 0.15rem 0; }
+    .file-tree .dir-toggle { user-select: none; }
+    .file-tree .dir-toggle::before { content: '▶ '; font-size: 0.7em; display: inline-block; transition: transform 0.15s; }
+    .file-tree .dir-toggle.open::before { transform: rotate(90deg); }
+    .file-tree .file-item { padding-left: 1em; }
+    .file-tree .file-item:hover { background: #f3f4f6; border-radius: 0.25rem; }
+    .file-tree .file-item.active { background: #dbeafe; border-radius: 0.25rem; }
+    .dropzone { border: 2px dashed #d1d5db; border-radius: 0.75rem; padding: 2rem; text-align: center; transition: all 0.2s; }
+    .dropzone.dragover { border-color: #6366f1; background: #eef2ff; }
+    .flash-msg { animation: fadeOut 3s ease-in-out forwards; }
+    @keyframes fadeOut { 0%,70% { opacity: 1; } 100% { opacity: 0; display: none; } }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+  <%- include('partials/navbar') %>
+
+  <% if (msg) { %>
+  <div class="container mx-auto px-4 mt-4">
+    <div class="flash-msg bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm">
+      <% if (msg === 'created') { %>게시글이 작성되었습니다.
+      <% } else if (msg === 'updated') { %>게시글이 수정되었습니다.
+      <% } else if (msg === 'deleted') { %>게시글이 삭제되었습니다.
+      <% } %>
+    </div>
+  </div>
+  <% } %>
+
+  <main class="container mx-auto px-4 py-6 flex-1">
+    <%- body %>
+  </main>
+
+  <footer class="border-t bg-white mt-auto">
+    <div class="container mx-auto px-4 py-4 text-center text-sm text-gray-500">
+      Lab Share Page &mdash; Internal Knowledge Sharing
+    </div>
+  </footer>
+</body>
+</html>

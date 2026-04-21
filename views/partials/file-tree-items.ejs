@@ -1,0 +1,20 @@
+<ul>
+<% items.forEach(item => { %>
+  <li>
+    <% if (item.type === 'directory') { %>
+      <div class="dir-toggle font-medium text-gray-700" onclick="this.classList.toggle('open'); this.nextElementSibling.classList.toggle('hidden');">
+        📁 <%= item.name %>
+      </div>
+      <div class="hidden">
+        <%- include('file-tree-items', { items: item.children }) %>
+      </div>
+    <% } else { %>
+      <div class="file-item text-gray-600 pl-1 py-0.5" data-path="<%= item.path %>" data-ext="<%= item.extension %>">
+        <span class="text-gray-400"><% if (['.md','.txt','.json','.js','.py','.yaml','.yml','.toml'].includes(item.extension)) { %>📄<% } else if (['.png','.jpg','.jpeg','.gif','.svg','.webp'].includes(item.extension)) { %>🖼️<% } else { %>📦<% } %></span>
+        <%= item.name %>
+        <span class="text-xs text-gray-400 ml-1"><%= item.size > 1024 ? (item.size / 1024).toFixed(1) + 'KB' : item.size + 'B' %></span>
+      </div>
+    <% } %>
+  </li>
+<% }) %>
+</ul>

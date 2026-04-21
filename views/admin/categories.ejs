@@ -1,0 +1,101 @@
+<div class="max-w-2xl mx-auto">
+  <h1 class="text-2xl font-bold text-gray-900 mb-6">Manage Categories</h1>
+
+  <% if (msg === 'added') { %>
+    <div class="mb-4 p-3 bg-green-50 border border-green-200 text-green-800 rounded-lg text-sm">카테고리가 추가되었습니다.</div>
+  <% } else if (msg === 'deleted') { %>
+    <div class="mb-4 p-3 bg-green-50 border border-green-200 text-green-800 rounded-lg text-sm">카테고리가 삭제되었습니다.</div>
+  <% } else if (msg === 'error') { %>
+    <div class="mb-4 p-3 bg-red-50 border border-red-200 text-red-800 rounded-lg text-sm">
+      <% if (currentQuery.detail === 'duplicate') { %>
+        이미 존재하는 카테고리 이름입니다.
+      <% } else if (currentQuery.detail === 'name_required') { %>
+        카테고리 이름을 입력해주세요.
+      <% } else { %>
+        오류가 발생했습니다.
+      <% } %>
+    </div>
+  <% } %>
+
+  <div class="bg-white rounded-xl border divide-y">
+    <% categoryTree.forEach(parent => { %>
+      <div class="p-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="inline-block w-3 h-3 rounded-full bg-<%= parent.color %>-400"></span>
+            <div>
+              <span class="font-medium text-gray-900"><%= parent.label %></span>
+              <span class="text-xs text-gray-400 ml-2"><%= parent.slug %></span>
+              <% if (parent.postCount > 0) { %>
+                <span class="text-xs text-indigo-500 ml-1">(<%= parent.postCount %>개)</span>
+              <% } %>
+            </div>
+          </div>
+          <form method="POST" action="/admin/categories/<%= parent.id %>/delete"
+                onsubmit="return confirm('<%= parent.children.length > 0 ? `하위 카테고리 ${parent.children.length}개도 함께 삭제됩니다. ` : '' %><%= (parent.postCount > 0) ? `이 카테고리를 사용하는 게시글이 ${parent.postCount}개 있습니다. ` : '' %>삭제하시겠습니까?')">
+            <button type="submit" class="text-xs text-gray-400 hover:text-red-500 px-2 py-1">삭제</button>
+          </form>
+        </div>
+        <% if (parent.children.length > 0) { %>
+          <div class="ml-8 mt-2 space-y-1">
+            <% parent.children.forEach(child => { %>
+              <div class="flex items-center justify-between py-1.5 px-3 rounded-md bg-gray-50">
+                <div class="flex items-center gap-2">
+                  <span class="text-gray-400 text-xs">└</span>
+                  <span class="text-sm text-gray-700"><%= child.label %></span>
+                  <span class="text-xs text-gray-400"><%= child.slug %></span>
+                  <% if (child.postCount > 0) { %>
+                    <span class="text-xs text-indigo-500">(<%= child.postCount %>개)</span>
+                  <% } %>
+                </div>
+                <form method="POST" action="/admin/categories/<%= child.id %>/delete"
+                      onsubmit="return confirm('<%= child.postCount > 0 ? `이 카테고리를 사용하는 게시글이 ${child.postCount}개 있습니다. ` : '' %>삭제하시겠습니까?')">
+                  <button type="submit" class="text-xs text-gray-400 hover:text-red-500">삭제</button>
+                </form>
+              </div>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+    <% }) %>
+  </div>
+
+  <div class="mt-6 bg-white rounded-xl border p-5">
+    <h3 class="font-semibold text-gray-900 mb-3">New Category</h3>
+    <form method="POST" action="/admin/categories" class="space-y-3">
+      <div>
+        <label class="block text-xs text-gray-500 mb-1">상위 카테고리 (비워두면 최상위)</label>
+        <select name="parent_id" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <option value="">— 최상위 카테고리 —</option>
+          <% topLevel.forEach(cat => { %>
+            <option value="<%= cat.id %>"><%= cat.label %> 하위에 추가</option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="flex gap-3">
+        <input type="text" name="label" required placeholder="카테고리 이름"
+               class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <select name="color" class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <option value="gray">Gray</option>
+          <option value="indigo">Indigo</option>
+          <option value="emerald">Emerald</option>
+          <option value="amber">Amber</option>
+          <option value="sky">Sky</option>
+          <option value="rose">Rose</option>
+          <option value="violet">Violet</option>
+          <option value="orange">Orange</option>
+          <option value="teal">Teal</option>
+        </select>
+      </div>
+      <input type="text" name="description" placeholder="설명 (선택)"
+             class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition">
+        Add Category
+      </button>
+    </form>
+  </div>
+
+  <div class="mt-4">
+    <a href="/" class="text-sm text-gray-500 hover:text-gray-700">&larr; Back to Home</a>
+  </div>
+</div>

@@ -1,0 +1,116 @@
+<div class="mb-6 flex items-center justify-between">
+  <div>
+    <% if (parentCategory) { %>
+      <div class="flex items-center gap-1 text-sm text-gray-500 mb-1">
+        <a href="/" class="hover:text-gray-700">All</a>
+        <span>/</span>
+        <a href="/?category=<%= parentCategory.slug %>" class="hover:text-gray-700 <%= !activeSub ? 'font-medium text-gray-900' : '' %>"><%= parentCategory.label %></a>
+        <% if (activeSub) { %>
+          <span>/</span>
+          <span class="font-medium text-gray-900"><%= activeSub.label %></span>
+        <% } %>
+      </div>
+    <% } %>
+    <h1 class="text-2xl font-bold text-gray-900">
+      <% if (activeSub) { %>
+        <%= activeSub.label %>
+      <% } else if (parentCategory) { %>
+        <%= parentCategory.label %>
+      <% } else if (activeCategory) { %>
+        <% const catInfo = categories.find(c => c.slug === activeCategory); %>
+        <%= catInfo ? catInfo.label : 'Posts' %>
+      <% } else { %>
+        All Posts
+      <% } %>
+    </h1>
+    <p class="text-sm text-gray-500 mt-1">
+      <% if (searchQuery) { %>
+        "<%= searchQuery %>" 검색 결과: <%= total %>건
+      <% } else { %>
+        Total: <%= total %>건
+      <% } %>
+    </p>
+  </div>
+</div>
+
+<% if (parentCategory && subCategories.length > 0) { %>
+  <div class="mb-4 flex flex-wrap gap-1.5">
+    <a href="/?category=<%= parentCategory.slug %>"
+       class="px-3 py-1.5 text-sm rounded-lg border font-medium <%= !activeSub ? 'bg-' + parentCategory.color + '-100 border-' + parentCategory.color + '-300 text-' + parentCategory.color + '-800' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50' %> transition">
+      All
+    </a>
+    <% subCategories.forEach(sub => { %>
+      <a href="/?category=<%= sub.slug %>"
+         class="px-3 py-1.5 text-sm rounded-lg border <%= activeSub && activeSub.slug === sub.slug ? 'bg-' + parentCategory.color + '-100 border-' + parentCategory.color + '-300 text-' + parentCategory.color + '-800 font-medium' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50' %> transition">
+        <%= sub.label %>
+      </a>
+    <% }) %>
+  </div>
+<% } %>
+
+<% if (popularTags && popularTags.length > 0) { %>
+  <div class="mb-4 flex flex-wrap gap-1.5">
+    <% popularTags.forEach(tag => { %>
+      <a href="/?tag=<%= encodeURIComponent(tag.name) %><%= activeCategory ? '&category=' + activeCategory : '' %>"
+         class="px-2.5 py-1 text-xs rounded-full border <%= activeTag === tag.name ? 'bg-indigo-100 border-indigo-300 text-indigo-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50' %> transition">
+        #<%= tag.name %> <span class="text-gray-400 ml-0.5"><%= tag.post_count %></span>
+      </a>
+    <% }) %>
+    <% if (activeTag) { %>
+      <a href="/?<%= activeCategory ? 'category=' + activeCategory : '' %><%= searchQuery ? (activeCategory ? '&' : '') + 'q=' + encodeURIComponent(searchQuery) : '' %>"
+         class="px-2.5 py-1 text-xs rounded-full border border-red-200 text-red-500 hover:bg-red-50 transition">
+        Clear tag filter
+      </a>
+    <% } %>
+  </div>
+<% } %>
+
+<% if (posts.length === 0) { %>
+  <div class="text-center py-16">
+    <svg class="mx-auto w-12 h-12 text-gray-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6.75 12H9.75m5.25 3H9m8.25-8.25v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75"/></svg>
+    <h3 class="mt-4 text-lg font-medium text-gray-900">게시글이 없습니다</h3>
+    <p class="mt-2 text-sm text-gray-500">첫 번째 게시글을 작성해보세요.</p>
+    <a href="/posts/new" class="mt-4 inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+      New Post
+    </a>
+  </div>
+<% } else { %>
+  <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <% posts.forEach(post => { %>
+      <% const catInfo = categories.find(c => c.slug === post.category); %>
+      <a href="/posts/<%= post.id %>" class="block bg-white rounded-xl border hover:shadow-md transition p-5">
+        <div class="flex items-start justify-between gap-2 mb-2">
+          <h2 class="font-semibold text-gray-900 line-clamp-2"><%= post.title %></h2>
+          <% if (post.attachment_id) { %>
+            <svg class="w-4 h-4 text-gray-400 flex-shrink-0 mt-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13"/></svg>
+          <% } %>
+        </div>
+        <% if (catInfo) { %>
+          <span class="inline-block px-2 py-0.5 text-xs font-medium rounded-full bg-<%= catInfo.color %>-100 text-<%= catInfo.color %>-700 mb-2">
+            <%= catInfo.label %>
+          </span>
+        <% } %>
+        <p class="text-sm text-gray-500 line-clamp-3 mb-3"><%= post.body.replace(/^#{1,6}\s+/gm, '').replace(/[*`\[\]~>|-]/g, '').replace(/\n+/g, ' ').trim().substring(0, 200) %></p>
+        <p class="text-xs text-gray-400"><%= formatDate(post.created_at) %></p>
+        <% if (commentCounts[post.id]) { %>
+          <span class="text-xs text-gray-400 mt-1 flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
+            <%= commentCounts[post.id] %>
+          </span>
+        <% } %>
+      </a>
+    <% }) %>
+  </div>
+
+  <% if (totalPages > 1) { %>
+    <nav class="mt-8 flex justify-center gap-1">
+      <% for (let i = 1; i <= totalPages; i++) { %>
+        <a href="/?<%= activeCategory ? 'category=' + activeCategory + '&' : '' %><%= activeTag ? 'tag=' + encodeURIComponent(activeTag) + '&' : '' %><%= searchQuery ? 'q=' + encodeURIComponent(searchQuery) + '&' : '' %>page=<%= i %>"
+           class="px-3 py-1.5 text-sm rounded-md <%= i === page ? 'bg-indigo-600 text-white' : 'bg-white border text-gray-700 hover:bg-gray-50' %>">
+          <%= i %>
+        </a>
+      <% } %>
+    </nav>
+  <% } %>
+<% } %>

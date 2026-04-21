@@ -1,0 +1,11 @@
+node_modules/
+uploads/
+db/*.sqlite
+db/*.sqlite-wal
+db/*.sqlite-shm
+logs/
+public/css/output.css
+.DS_Store
+*.env
+.ouroboros/
+.claude/settings.local.json
