@@ -47,6 +47,10 @@ app.use('/admin', adminRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-app.listen(config.port, config.host, () => {
-  console.log(`Lab Share Page running at http://${config.host}:${config.port}`);
-});
+if (require.main === module) {
+  app.listen(config.port, config.host, () => {
+    console.log(`Lab Share Page running at http://${config.host}:${config.port}`);
+  });
+}
+
+module.exports = app;
