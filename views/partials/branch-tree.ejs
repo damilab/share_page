@@ -1,13 +1,30 @@
 <div class="bg-white rounded-xl border">
-  <div class="p-4 border-b">
-    <h3 class="font-semibold text-sm text-gray-900">Branch Tree</h3>
+  <div class="p-4 border-b flex items-center justify-between">
+    <h3 class="font-semibold text-sm text-gray-900">
+      <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 3v12m0 0a3 3 0 106 0m-6 0a3 3 0 116 0m0 0V9a3 3 0 013-3h3m-3 0l3-3m-3 3l3 3"/>
+      </svg>
+      Branch Tree
+    </h3>
   </div>
-  <div class="p-3 text-sm font-mono overflow-x-auto">
-    <% rows.forEach(row => { %>
-      <div class="<%= row.isCurrent ? 'bg-indigo-50 font-bold text-gray-900' : 'text-gray-700' %> py-0.5 pl-<%= row.depth * 3 %>">
-        <% if (row.isCurrent) { %>●<% } else { %>·<% } %>
-        <%= row.title %>
-      </div>
+  <div class="p-3 text-xs font-mono overflow-x-auto">
+    <% rows.forEach((row) => { %>
+      <% const indent = '  '.repeat(row.depth); %>
+      <% const connector = row.depth === 0 ? '' : (row.isLastSibling ? '└─ ' : '├─ '); %>
+      <% if (row.isCurrent) { %>
+        <a href="/posts/<%= row.id %>" class="block -mx-3 px-3 py-1 bg-indigo-50 text-gray-900 font-semibold hover:bg-indigo-100">
+          <span class="text-gray-400 whitespace-pre"><%= indent + connector %></span>
+          ● <%= row.title %>
+          <% if (row.childrenCount > 0) { %>
+            <span class="ml-1 inline-block px-1.5 py-0.5 text-[10px] bg-indigo-100 text-indigo-700 rounded"><%= row.childrenCount %> branch<%= row.childrenCount === 1 ? '' : 'es' %></span>
+          <% } %>
+        </a>
+      <% } else { %>
+        <a href="/posts/<%= row.id %>" class="block py-1 text-gray-700 hover:text-indigo-600">
+          <span class="text-gray-400 whitespace-pre"><%= indent + connector %></span>
+          <%= row.title %>
+        </a>
+      <% } %>
     <% }) %>
   </div>
 </div>
