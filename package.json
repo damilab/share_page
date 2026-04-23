@@ -12,6 +12,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@tailwindcss/typography": "^0.5.19",
     "adm-zip": "^0.5.17",
     "better-sqlite3": "^12.9.0",
     "compression": "^1.8.1",
@@ -29,7 +30,6 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
-    "@tailwindcss/typography": "^0.5.19",
     "supertest": "^7.2.2",
     "tailwindcss": "^4.2.2",
     "vitest": "^4.1.4"
