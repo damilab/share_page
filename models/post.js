@@ -65,15 +65,16 @@ const Post = {
     return post;
   },
 
-  create({ title, body, category, attachment_id, attachment_original_name, attachment_file_tree }) {
+  create({ title, body, category, parent_id, attachment_id, attachment_original_name, attachment_file_tree }) {
     const stmt = db.prepare(`
-      INSERT INTO posts (title, body, category, attachment_id, attachment_original_name, attachment_file_tree)
-      VALUES (@title, @body, @category, @attachment_id, @attachment_original_name, @attachment_file_tree)
+      INSERT INTO posts (title, body, category, parent_id, attachment_id, attachment_original_name, attachment_file_tree)
+      VALUES (@title, @body, @category, @parent_id, @attachment_id, @attachment_original_name, @attachment_file_tree)
     `);
     const result = stmt.run({
       title,
       body,
       category,
+      parent_id: parent_id || null,
       attachment_id: attachment_id || null,
       attachment_original_name: attachment_original_name || null,
       attachment_file_tree: attachment_file_tree ? JSON.stringify(attachment_file_tree) : null
