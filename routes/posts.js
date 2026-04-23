@@ -10,7 +10,22 @@ const { renderMarkdown } = require('../lib/markdown');
 const Category = require('../models/category');
 
 router.get('/new', (req, res) => {
-  res.render('posts/new', { pageTitle: 'New Post' });
+  let parent = null;
+  let prefillTags = '';
+  if (req.query.from) {
+    const from = Post.findByIdWithTags(req.query.from);
+    if (from) {
+      parent = {
+        id: from.id,
+        title: from.title,
+        body: from.body,
+        category: from.category,
+        prefillTitle: `${from.title} (branch)`
+      };
+      prefillTags = (from.tags || []).map(t => t.name).join(', ');
+    }
+  }
+  res.render('posts/new', { pageTitle: 'New Post', parent, prefillTags });
 });
 
 router.post('/', upload.single('attachment'), (req, res) => {
