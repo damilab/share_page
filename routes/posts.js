@@ -53,7 +53,10 @@ router.post('/', upload.single('attachment'), (req, res) => {
     }
   }
 
-  const id = Post.create({ title, body, category, ...attachmentData });
+  const rawParent = req.body.parent_id ? Number(req.body.parent_id) : null;
+  const parent_id = rawParent && Post.findById(rawParent) ? rawParent : null;
+
+  const id = Post.create({ title, body, category, parent_id, ...attachmentData });
   if (req.body.tags) {
     const tagNames = req.body.tags.split(',').map(t => t.trim()).filter(Boolean);
     Tag.syncPostTags(id, tagNames);

@@ -51,3 +51,32 @@ describe('GET /posts/new?from=:id', () => {
     expect(res.text).not.toContain('Branched from');
   });
 });
+
+describe('POST /posts with parent_id', () => {
+  it('persists parent_id when valid', async () => {
+    const Post = require('../../models/post');
+    const parentId = Post.create({ title: 'P', body: 'b', category: 'memos' });
+
+    const res = await request(app)
+      .post('/posts')
+      .type('form')
+      .send({ title: 'Child', body: 'c', category: 'memos', parent_id: String(parentId) });
+
+    expect(res.status).toBe(302);
+    const all = require('../../db/connection')
+      .prepare('SELECT * FROM posts WHERE title = ?').get('Child');
+    expect(all.parent_id).toBe(parentId);
+  });
+
+  it('coerces invalid parent_id to NULL', async () => {
+    const res = await request(app)
+      .post('/posts')
+      .type('form')
+      .send({ title: 'Orphan', body: 'o', category: 'memos', parent_id: '99999' });
+
+    expect(res.status).toBe(302);
+    const post = require('../../db/connection')
+      .prepare('SELECT * FROM posts WHERE title = ?').get('Orphan');
+    expect(post.parent_id).toBeNull();
+  });
+});
