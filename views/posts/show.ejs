@@ -18,6 +18,11 @@
         <% } %>
       </div>
       <h1 class="text-2xl font-bold text-gray-900"><%= post.title %></h1>
+      <% if (parentPost) { %>
+        <div class="mt-1 text-xs text-gray-500">
+          ↳ Branched from <a href="/posts/<%= parentPost.id %>" class="text-indigo-600 hover:underline"><%= parentPost.title %></a>
+        </div>
+      <% } %>
     </div>
     <div class="flex items-center gap-2 flex-shrink-0">
       <button id="copy-raw-btn" data-post-id="<%= post.id %>"
@@ -25,6 +30,13 @@
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/></svg>
         Copy MD
       </button>
+      <a href="/posts/new?from=<%= post.id %>"
+         class="inline-flex items-center gap-1 px-3 py-1.5 text-sm border rounded-lg hover:bg-gray-50 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 3v12m0 0a3 3 0 106 0m-6 0a3 3 0 116 0m0 0V9a3 3 0 013-3h3m-3 0l3-3m-3 3l3 3"/>
+        </svg>
+        Branch
+      </a>
       <a href="/posts/<%= post.id %>/edit" class="inline-flex items-center gap-1 px-3 py-1.5 text-sm border rounded-lg hover:bg-gray-50 transition">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/></svg>
         Edit
@@ -39,7 +51,7 @@
     </div>
   </div>
 
-  <div class="flex gap-6 <% if (fileTree) { %>flex-col lg:flex-row<% } %>">
+  <div class="flex gap-6 <% if (fileTree || hasBranchTree) { %>flex-col lg:flex-row<% } %>">
     <div class="flex-1 min-w-0">
       <div class="bg-white rounded-xl border p-6 lg:p-8">
         <div class="prose prose-gray max-w-none">
@@ -84,8 +96,9 @@
       </div>
     </div>
 
-    <% if (fileTree) { %>
-    <div class="lg:w-80 flex-shrink-0">
+    <% if (fileTree || hasBranchTree) { %>
+    <div class="lg:w-80 flex-shrink-0 space-y-4">
+      <% if (fileTree) { %>
       <div class="bg-white rounded-xl border sticky top-20">
         <div class="p-4 border-b flex items-center justify-between">
           <h3 class="font-semibold text-sm text-gray-900">
@@ -109,6 +122,11 @@
           <div id="preview-content" class="p-3 max-h-80 overflow-auto"></div>
         </div>
       </div>
+      <% } %>
+
+      <% if (hasBranchTree) { %>
+        <%- include('../partials/branch-tree', { rows: branchRows }) %>
+      <% } %>
     </div>
     <% } %>
   </div>

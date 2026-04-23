@@ -80,3 +80,42 @@ describe('POST /posts with parent_id', () => {
     expect(post.parent_id).toBeNull();
   });
 });
+
+describe('GET /posts/:id branch tree', () => {
+  it('renders Branch button and tree card when post has descendants', async () => {
+    const Post = require('../../models/post');
+    const aId = Post.create({ title: 'Parent', body: 'p', category: 'memos' });
+    const bId = Post.create({ title: 'Child', body: 'c', category: 'memos', parent_id: aId });
+
+    const res = await request(app).get(`/posts/${aId}`);
+    expect(res.status).toBe(200);
+    // Branch action button
+    expect(res.text).toContain(`href="/posts/new?from=${aId}"`);
+    // Branch tree sidebar title
+    expect(res.text).toContain('Branch Tree');
+    // Shows child title
+    expect(res.text).toContain('Child');
+  });
+
+  it('renders Branched from banner on child page', async () => {
+    const Post = require('../../models/post');
+    const aId = Post.create({ title: 'Parent', body: 'p', category: 'memos' });
+    const bId = Post.create({ title: 'Child', body: 'c', category: 'memos', parent_id: aId });
+
+    const res = await request(app).get(`/posts/${bId}`);
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('Branched from');
+    expect(res.text).toContain(`/posts/${aId}`);
+  });
+
+  it('omits Branch Tree card for root with no children', async () => {
+    const Post = require('../../models/post');
+    const id = Post.create({ title: 'Solo', body: 's', category: 'memos' });
+
+    const res = await request(app).get(`/posts/${id}`);
+    expect(res.status).toBe(200);
+    expect(res.text).not.toContain('Branch Tree');
+    // Branch button still present
+    expect(res.text).toContain(`href="/posts/new?from=${id}"`);
+  });
+});

@@ -73,13 +73,22 @@ router.get('/:id', (req, res) => {
   const categoryInfo = Category.findBySlug(post.category);
   const comments = Comment.findByPostId(post.id);
 
+  const branchTree = Post.findBranchTree(post.id);
+  const { toRenderRows } = require('../lib/branchTree');
+  const branchRows = toRenderRows(branchTree);
+  const hasBranchTree = branchTree.ancestors.length > 0 || branchTree.descendants.length > 0;
+  const parentPost = post.parent_id ? Post.findById(post.parent_id) : null;
+
   res.render('posts/show', {
     pageTitle: post.title,
     post,
     renderedBody,
     fileTree,
     categoryInfo,
-    comments
+    comments,
+    branchRows,
+    hasBranchTree,
+    parentPost
   });
 });
 
