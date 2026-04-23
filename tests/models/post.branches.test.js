@@ -24,3 +24,23 @@ describe('Post branches — create', () => {
     expect(post.parent_id).toBeNull();
   });
 });
+
+describe('Post branches — findAncestors', () => {
+  it('returns empty array for root post', () => {
+    const Post = require('../../models/post');
+    const rootId = Post.create({ title: 'Root', body: 'R', category: 'memos' });
+    expect(Post.findAncestors(rootId)).toEqual([]);
+  });
+
+  it('returns ancestors root-first, excluding self', () => {
+    const Post = require('../../models/post');
+    const aId = Post.create({ title: 'A', body: 'a', category: 'memos' });
+    const bId = Post.create({ title: 'B', body: 'b', category: 'memos', parent_id: aId });
+    const cId = Post.create({ title: 'C', body: 'c', category: 'memos', parent_id: bId });
+    const dId = Post.create({ title: 'D', body: 'd', category: 'memos', parent_id: cId });
+
+    const ancestors = Post.findAncestors(dId);
+    expect(ancestors.map(a => a.title)).toEqual(['A', 'B', 'C']);
+    expect(ancestors.every(a => a.id !== dId)).toBe(true);
+  });
+});

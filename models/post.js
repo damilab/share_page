@@ -65,6 +65,21 @@ const Post = {
     return post;
   },
 
+  findAncestors(id) {
+    return db.prepare(`
+      WITH RECURSIVE ancestors(id, parent_id, title, category, created_at, depth) AS (
+        SELECT id, parent_id, title, category, created_at, 0
+          FROM posts WHERE id = @id
+        UNION ALL
+        SELECT p.id, p.parent_id, p.title, p.category, p.created_at, a.depth + 1
+          FROM posts p JOIN ancestors a ON p.id = a.parent_id
+      )
+      SELECT id, parent_id, title, category, created_at, depth
+        FROM ancestors WHERE id != @id
+        ORDER BY depth DESC
+    `).all({ id });
+  },
+
   create({ title, body, category, parent_id, attachment_id, attachment_original_name, attachment_file_tree }) {
     const stmt = db.prepare(`
       INSERT INTO posts (title, body, category, parent_id, attachment_id, attachment_original_name, attachment_file_tree)
