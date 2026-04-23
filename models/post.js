@@ -96,6 +96,16 @@ const Post = {
     `).all({ id });
   },
 
+  findBranchTree(id) {
+    const current = Post.findById(id) || null;
+    if (!current) return { ancestors: [], current: null, descendants: [] };
+    return {
+      ancestors: Post.findAncestors(id),
+      current,
+      descendants: Post.findDescendants(id)
+    };
+  },
+
   create({ title, body, category, parent_id, attachment_id, attachment_original_name, attachment_file_tree }) {
     const stmt = db.prepare(`
       INSERT INTO posts (title, body, category, parent_id, attachment_id, attachment_original_name, attachment_file_tree)

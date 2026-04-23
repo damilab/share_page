@@ -81,3 +81,25 @@ describe('Post branches — findDescendants', () => {
     expect(Post.findById(bId).parent_id).toBeNull();
   });
 });
+
+describe('Post branches — findBranchTree', () => {
+  it('returns ancestors, current, descendants shape', () => {
+    const Post = require('../../models/post');
+    const aId = Post.create({ title: 'A', body: 'a', category: 'memos' });
+    const bId = Post.create({ title: 'B', body: 'b', category: 'memos', parent_id: aId });
+    const cId = Post.create({ title: 'C', body: 'c', category: 'memos', parent_id: bId });
+
+    const tree = Post.findBranchTree(bId);
+    expect(tree.ancestors.map(n => n.title)).toEqual(['A']);
+    expect(tree.current.title).toBe('B');
+    expect(tree.descendants.map(n => n.title)).toEqual(['C']);
+  });
+
+  it('returns null current when post does not exist', () => {
+    const Post = require('../../models/post');
+    const tree = Post.findBranchTree(99999);
+    expect(tree.current).toBeNull();
+    expect(tree.ancestors).toEqual([]);
+    expect(tree.descendants).toEqual([]);
+  });
+});
