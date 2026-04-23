@@ -44,3 +44,40 @@ describe('Post branches — findAncestors', () => {
     expect(ancestors.every(a => a.id !== dId)).toBe(true);
   });
 });
+
+describe('Post branches — findDescendants', () => {
+  it('returns empty array for leaf post', () => {
+    const Post = require('../../models/post');
+    const rootId = Post.create({ title: 'Root', body: 'R', category: 'memos' });
+    expect(Post.findDescendants(rootId)).toEqual([]);
+  });
+
+  it('returns descendants in DFS order with depth', () => {
+    const Post = require('../../models/post');
+    //       A
+    //      / \
+    //     B   C
+    //     |
+    //     D
+    const aId = Post.create({ title: 'A', body: 'a', category: 'memos' });
+    const bId = Post.create({ title: 'B', body: 'b', category: 'memos', parent_id: aId });
+    const cId = Post.create({ title: 'C', body: 'c', category: 'memos', parent_id: aId });
+    const dId = Post.create({ title: 'D', body: 'd', category: 'memos', parent_id: bId });
+
+    const rows = Post.findDescendants(aId);
+    expect(rows.map(r => ({ title: r.title, depth: r.depth }))).toEqual([
+      { title: 'B', depth: 0 },
+      { title: 'D', depth: 1 },
+      { title: 'C', depth: 0 }
+    ]);
+  });
+
+  it('promotes children to roots when parent is deleted', () => {
+    const Post = require('../../models/post');
+    const aId = Post.create({ title: 'A', body: 'a', category: 'memos' });
+    const bId = Post.create({ title: 'B', body: 'b', category: 'memos', parent_id: aId });
+
+    Post.delete(aId);
+    expect(Post.findById(bId).parent_id).toBeNull();
+  });
+});

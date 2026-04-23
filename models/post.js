@@ -80,6 +80,22 @@ const Post = {
     `).all({ id });
   },
 
+  findDescendants(id) {
+    return db.prepare(`
+      WITH RECURSIVE descendants(id, parent_id, title, category, created_at, depth, path) AS (
+        SELECT id, parent_id, title, category, created_at, 0,
+               printf('%010d', id)
+          FROM posts WHERE parent_id = @id
+        UNION ALL
+        SELECT p.id, p.parent_id, p.title, p.category, p.created_at, d.depth + 1,
+               d.path || '/' || printf('%010d', p.id)
+          FROM posts p JOIN descendants d ON p.parent_id = d.id
+      )
+      SELECT id, parent_id, title, category, created_at, depth
+        FROM descendants ORDER BY path
+    `).all({ id });
+  },
+
   create({ title, body, category, parent_id, attachment_id, attachment_original_name, attachment_file_tree }) {
     const stmt = db.prepare(`
       INSERT INTO posts (title, body, category, parent_id, attachment_id, attachment_original_name, attachment_file_tree)
